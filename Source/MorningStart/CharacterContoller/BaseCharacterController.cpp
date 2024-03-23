@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "BaseCharacterController.h"
+#include "BaseCharacterMoveProcessor.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -74,39 +75,17 @@ void ABaseCharacterController::SetupPlayerInputComponent(UInputComponent* Player
 	if (EnhancedInputComponent) {
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABaseCharacterController::OnJump);
-		BindNormalLook();
-		BindNormalMove();
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Look);
 	} 
-}
-
-void ABaseCharacterController::BindNormalMove() {
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Move);
-}
-
-void ABaseCharacterController::BindNormalLook() {
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Look);
 }
 
 void ABaseCharacterController::Move(const FInputActionValue& Value) {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr) {
-		// find out which way is forward
-		const FRotator Rotation = GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
-
+	MoveProcessor->Move(this, MovementVector);
+	auto valueString = MovementVector.ToString();
+	UE_LOG(LogTemp, Log, TEXT("wow"),*valueString)
 }
 
 void ABaseCharacterController::Look(const FInputActionValue& Value) {
@@ -130,6 +109,7 @@ void ABaseCharacterController::BeginPlay() {
 	StateMachine = NewObject<UFiniteStateMachine>();
 	StateMachine->Controller = this;
 	StateMachine->ChangeState(NewObject<UCharacterMovementState>());
+	MoveProcessor = NewObject<UBaseCharacterMoveProcessor>();
 }
 
 // Called every frame

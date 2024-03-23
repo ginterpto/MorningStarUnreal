@@ -14,6 +14,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class UBaseCharacterMoveProcessor;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBaseTemplateCharacter, Log, All);
 
@@ -71,10 +72,9 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	void BindNormalMove();
+	UPROPERTY()
+	UBaseCharacterMoveProcessor* MoveProcessor;
 	
-	void BindNormalLook();
-
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
