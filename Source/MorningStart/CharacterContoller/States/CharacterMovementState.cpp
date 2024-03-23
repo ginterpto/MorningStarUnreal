@@ -3,17 +3,12 @@
 
 #include "CharacterMovementState.h"
 
-void UCharacterMovementState::Start(UObject* Controller) {
-	Super::Start(Controller);
-	UE_LOG(LogTemp, Log, TEXT("Started movement state"));
+void UCharacterMovementState::Start(UObject* NewController) {
+	Super::Start(NewController);
+	Controller->BindNormalMove();
+	Controller->BindNormalLook();
 }
 
-void UCharacterMovementState::Update(float DeltaTime) {
-	UE_LOG(LogTemp, Log, TEXT("Updating character movement state"));
-}
+void UCharacterMovementState::Update(float DeltaTime) { }
 
-void UCharacterMovementState::End() {
-	UE_LOG(LogTemp, Log, TEXT("Ended character movement state"));
-}
-
-
+void UCharacterMovementState::End() { }

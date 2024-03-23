@@ -1,8 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "BaseCharacterController.h"
-
-#include "BaseCharacterController.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -71,22 +69,20 @@ void ABaseCharacterController::SetupPlayerInputComponent(UInputComponent* Player
 	}
 
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+	EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (EnhancedInputComponent) {
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	} 
+}
 
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Move);
+void ABaseCharacterController::BindNormalMove() {
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Move);
+}
 
-		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Look);
-	} else {
-		UE_LOG(LogBaseTemplateCharacter, Error,
-		       TEXT(
-			       "'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
-		       ), *GetNameSafe(this));
-	}
+void ABaseCharacterController::BindNormalLook() {
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Look);
 }
 
 void ABaseCharacterController::Move(const FInputActionValue& Value) {
@@ -95,7 +91,7 @@ void ABaseCharacterController::Move(const FInputActionValue& Value) {
 
 	if (Controller != nullptr) {
 		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
@@ -108,6 +104,7 @@ void ABaseCharacterController::Move(const FInputActionValue& Value) {
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+
 }
 
 void ABaseCharacterController::Look(const FInputActionValue& Value) {
