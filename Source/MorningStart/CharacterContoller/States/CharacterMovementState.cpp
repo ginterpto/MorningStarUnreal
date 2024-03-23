@@ -5,8 +5,6 @@
 
 void UCharacterMovementState::Start(UObject* NewController) {
 	Super::Start(NewController);
-	Controller->BindNormalMove();
-	Controller->BindNormalLook();
 }
 
 void UCharacterMovementState::Update(float DeltaTime) { }

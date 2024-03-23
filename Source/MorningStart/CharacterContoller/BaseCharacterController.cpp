@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MorningStart/FiniteStateMachine/FiniteStateMachine.h"
+#include "States/CharacterJumpState.h"
 #include "States/CharacterMovementState.h"
 
 DEFINE_LOG_CATEGORY(LogBaseTemplateCharacter);
@@ -72,8 +73,9 @@ void ABaseCharacterController::SetupPlayerInputComponent(UInputComponent* Player
 	EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (EnhancedInputComponent) {
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABaseCharacterController::OnJump);
+		BindNormalLook();
+		BindNormalMove();
 	} 
 }
 
@@ -116,6 +118,10 @@ void ABaseCharacterController::Look(const FInputActionValue& Value) {
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ABaseCharacterController::OnJump() {
+	StateMachine->ChangeState(NewObject<UCharacterJumpState>());
 }
 
 // Called when the game starts or when spawned
