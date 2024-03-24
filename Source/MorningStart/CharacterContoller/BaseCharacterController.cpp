@@ -14,6 +14,7 @@
 #include "MorningStart/FiniteStateMachine/FiniteStateMachine.h"
 #include "States/CharacterJumpState.h"
 #include "States/CharacterMovementState.h"
+#include "States/CharacterRollState.h"
 
 DEFINE_LOG_CATEGORY(LogBaseTemplateCharacter);
 
@@ -77,7 +78,12 @@ void ABaseCharacterController::SetupPlayerInputComponent(UInputComponent* Player
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABaseCharacterController::OnJump);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::Look);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &ABaseCharacterController::OnRoll);
 	} 
+}
+
+void ABaseCharacterController::ChangeState(UBaseCharacterState* NewState) {
+	StateMachine->ChangeState(NewState);
 }
 
 void ABaseCharacterController::Move(const FInputActionValue& Value) {
@@ -100,7 +106,11 @@ void ABaseCharacterController::Look(const FInputActionValue& Value) {
 }
 
 void ABaseCharacterController::OnJump() {
-	StateMachine->ChangeState(NewObject<UCharacterJumpState>());
+	ChangeState(NewObject<UCharacterJumpState>());
+}
+
+void ABaseCharacterController::OnRoll() {
+	ChangeState(NewObject<UCharacterRollState>());
 }
 
 // Called when the game starts or when spawned
@@ -108,7 +118,7 @@ void ABaseCharacterController::BeginPlay() {
 	Super::BeginPlay();
 	StateMachine = NewObject<UFiniteStateMachine>();
 	StateMachine->Controller = this;
-	StateMachine->ChangeState(NewObject<UCharacterMovementState>());
+	ChangeState(NewObject<UCharacterMovementState>());
 	MoveProcessor = NewObject<UBaseCharacterMoveProcessor>();
 }
 

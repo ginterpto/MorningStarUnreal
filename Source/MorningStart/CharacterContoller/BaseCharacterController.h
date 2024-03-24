@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "BaseCharacterController.generated.h"
 
+class UBaseCharacterState;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -34,8 +35,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* RollAnimationMontage;
 
 protected:
 
@@ -48,6 +47,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+
+	// Input
 	UPROPERTY()
 	UEnhancedInputComponent* EnhancedInputComponent;
 
@@ -59,6 +60,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
+	/** Roll Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RollAction;
+
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
@@ -66,6 +71,12 @@ public:
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+
+
+	// animation
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* RollAnimationMontage;
+	
 
 	UPROPERTY()
 	UFiniteStateMachine* StateMachine;
@@ -77,6 +88,8 @@ public:
 
 	UPROPERTY()
 	UBaseCharacterMoveProcessor* MoveProcessor;
+
+	void ChangeState(UBaseCharacterState* NewState);
 	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -85,5 +98,7 @@ public:
 	void Look(const FInputActionValue& Value);
 
 	void OnJump();
+
+	void OnRoll();
 
 };
